@@ -34,25 +34,30 @@ namespace CustomCritters
             helper.Events.Player.Warped += this.OnWarped;
 
             // load content packs
-            Log.Info("Loading critter content packs...");
+            Console.WriteLine("Loading critter content packs...");
             foreach (IContentPack contentPack in this.GetContentPacks())
             {
                 CritterEntry data = contentPack.ReadJsonFile<CritterEntry>("critter.json");
                 if (data == null)
                 {
-                    Log.Warn($"   {contentPack.Manifest.Name}: ignored (no critter.json file).");
+                    Log.error($"   {contentPack.Manifest.Name}: ignored (no critter.json file).");
                     continue;
                 }
                 if (!File.Exists(Path.Combine(contentPack.DirectoryPath, "critter.png")))
                 {
-                    Log.Warn($"   {contentPack.Manifest.Name}: ignored (no critter.png file).");
+                    Log.error($"   {contentPack.Manifest.Name}: ignored (no critter.png file).");
                     continue;
                 }
-                Log.Info(contentPack.Manifest.Name == data.Id ? contentPack.Manifest.Name : $"   {contentPack.Manifest.Name} (id: {data.Id})");
+                Log.trace(contentPack.Manifest.Name == data.Id ? contentPack.Manifest.Name : $"   {contentPack.Manifest.Name} (id: {data.Id})");
                 CritterEntry.Register(data);
             }
         }
-
+        // Add this method in your mod class.
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
+            // Handle the GameLaunched event here
+            Console.WriteLine("Game Launched!");
+        }
 
         /*********
         ** Private methods
@@ -60,30 +65,6 @@ namespace CustomCritters
         /// <inheritdoc cref="IGameLoopEvents.GameLaunched"/>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
-        {
-            // register critters with BugNet
-            var bugNet = this.Helper.ModRegistry.GetApi<IBugNetApi>("spacechase0.BugNet");
-            if (bugNet is not null)
-            {
-                foreach (CritterEntry critter in CritterEntry.Critters.Values)
-                {
-                    Texture2D texture = CustomCritter.LoadCritterTexture(critter.Id);
-
-                    bugNet.RegisterCritter(
-                        manifest: this.ModManifest,
-                        critterId: $"{this.ModManifest.UniqueID}/{critter.Id}",
-                        texture: texture,
-                        textureArea: new Rectangle(0, 0, texture.Width, texture.Height),
-                        defaultCritterName: critter.Id, // TODO: add name fields to critter.json
-                        translatedCritterNames: new Dictionary<string, string>(),
-                        makeCritter: (x, y) => critter.MakeCritter(new Vector2(x, y)),
-                        isThisCritter: instance => (instance as CustomCritter)?.Data.Id == critter.Id
-                    );
-                }
-            }
-        }
-
         /// <inheritdoc cref="IPlayerEvents.Warped"/>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
