@@ -66,7 +66,7 @@ namespace CustomCritters.Framework.CritterData
                 ret = false;
             else if (Game1.random.NextDouble() >= Math.Max(0.15, (Math.Min(0.5, loc.map.Layers[0].LayerWidth * loc.map.Layers[0].LayerHeight / this.ChancePerTile))))
                 ret = false;
-            else if (this.RequireDarkOut && !Game1.isDarkOut())
+            else if (this.RequireDarkOut && !Game1.isDarkOut(Game1.player.currentLocation))
                 ret = false;
             else if (!this.AllowRain && Game1.isRaining)
                 ret = false;
