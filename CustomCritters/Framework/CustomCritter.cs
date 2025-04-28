@@ -12,7 +12,7 @@ namespace CustomCritters.Framework
     {
         /// <summary>The light type IDs recognised by the game.</summary>
         /// <remarks>Setting an invalid light ID will crash the game. Valid IDs are based on <see cref="LightSource.loadTextureFromConstantValue"/>.</remarks>
-        private readonly HashSet<int> ValidLightIds = new(new[] { LightSource.lantern, LightSource.windowLight, LightSource.sconceLight, LightSource.cauldronLight, LightSource.indoorWindowLight });
+        private readonly HashSet<string> ValidLightIds = new(new[] { "lantern", "windowLight", "sconceLight", "cauldronLight", "indoorWindowLight" });
 
         private readonly LightSource Light;
         private readonly Random Rand;
@@ -42,9 +42,9 @@ namespace CustomCritters.Framework
             {
                 var col = new Color(255 - data.Light.Color.R, 255 - data.Light.Color.G, 255 - data.Light.Color.B);
                 this.Light = this.ValidLightIds.Contains(data.Light.VanillaLightId)
-                    ? new LightSource(data.Light.VanillaLightId, this.position, data.Light.Radius, col)
-                    : new LightSource(LightSource.sconceLight, this.position, data.Light.Radius, col);
-                Game1.currentLightSources.Add(this.Light);
+                    ? new LightSource(data.Light.VanillaLightId.ToString(), 0, this.position, data.Light.Radius, col)
+                    : new LightSource("sconceLight", 4, this.position, data.Light.Radius, col);
+                Game1.currentLightSources.Add(this.Light.netId.Value, this.Light);
             }
         }
 
@@ -115,7 +115,7 @@ namespace CustomCritters.Framework
                                             break;
 
                                         default:
-                                            Log.Warn("Bad patrol point type: " + pt.Type);
+                                            Log.error("Bad patrol point type: " + pt.Type);
                                             break;
                                     }
 
@@ -143,7 +143,7 @@ namespace CustomCritters.Framework
                         break;
 
                     default:
-                        Log.Warn("Bad custom critter behavior: " + this.Data.Behavior.Type);
+                        Log.error("Bad custom critter behavior: " + this.Data.Behavior.Type);
                         break;
                 }
             }
